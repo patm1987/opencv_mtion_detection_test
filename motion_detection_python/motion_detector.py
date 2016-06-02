@@ -6,7 +6,7 @@ MIN_AREA = 25
 
 
 def run_capture():
-    first_frame = None
+    last_frame = None
     while True:
         (grabbed, frame) = camera.read()
         if not grabbed:
@@ -16,12 +16,12 @@ def run_capture():
         frame = imutils.resize(frame, width=500)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         gray = cv2.GaussianBlur(gray, (21, 21), 0)
-        if first_frame is None:
-            first_frame = gray
+        if last_frame is None:
+            last_frame = gray
             # we now have something to compare to. Yay progress!
             continue
 
-        frame_delta = cv2.absdiff(first_frame, gray)
+        frame_delta = cv2.absdiff(last_frame, gray)
         thresh = cv2.threshold(frame_delta, 25, 255, cv2.THRESH_BINARY)[1]
 
         # dilate the thresholded values
@@ -37,7 +37,10 @@ def run_capture():
             text = "Occupied"
 
         cv2.imshow("Feed", frame)
+        last_frame = gray
         key = cv2.waitKey(1) & 0xFF
+        if key == ord('q'):
+            break
 
 
 if __name__ == '__main__':
